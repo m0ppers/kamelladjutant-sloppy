@@ -1,0 +1,26 @@
+{
+    "project": "kamelladjutant",
+        "services": [
+        {
+            "id": "frontend",
+            "apps": [
+            {
+                "id": "webserver",
+                "domain": {
+                    "type": "HTTP",
+                    "uri": "$domain"
+                },
+                "mem": 256,
+                "image": "m0ppers/kamelladjutant-frontend",
+                "port_mappings": [
+                {
+                    "container_port": 80
+                }
+                ],
+
+                    "instances": 1
+            }
+            ]
+        }
+    ]
+}
