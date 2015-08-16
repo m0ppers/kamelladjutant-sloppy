@@ -1,25 +1,47 @@
 {
     "project": "kamelladjutant",
-        "services": [
+    "services": [
         {
             "id": "frontend",
             "apps": [
-            {
-                "id": "webserver",
-                "domain": {
-                    "type": "HTTP",
-                    "uri": "$domain"
-                },
-                "mem": 256,
-                "image": "m0ppers/kamelladjutant-frontend",
-                "port_mappings": [
                 {
-                    "container_port": 80
+                    "id": "webserver",
+                    "domain": {
+                        "type": "HTTP",
+                        "uri": "$domain"
+                    },
+                    "mem": 256,
+                    "image": "m0ppers/kamelladjutant-frontend",
+                    "port_mappings": [
+                        {
+                            "container_port": 80
+                        }
+                    ],
+                    "instances": 1,
+                    "dependencies": [
+                        "../../signaling/signaling-server"
+                    ]
                 }
-                ],
-
+            ]
+        },
+        {
+            "id": "signaling",
+            "apps": [
+                {
+                    "id": "signaling-server",
+                    "mem": 256,
+                    "image": "m0ppers/kamelladjutant-signaling-server",
+                    "port_mappings": [
+                        {
+                            "container_port": 9891
+                        }
+                    ],
+                    "env": {
+                        "REDIS_HOST": "localhost",
+                        "REDIS_PORT": "6379"
+                    },
                     "instances": 1
-            }
+                }
             ]
         }
     ]
