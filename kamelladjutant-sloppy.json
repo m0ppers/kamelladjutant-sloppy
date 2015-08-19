@@ -7,19 +7,23 @@
                 {
                     "id": "webserver",
                     "domain": {
-                        "type": "HTTP",
+                        "type": "HTTPS",
                         "uri": "$domain"
                     },
                     "mem": 256,
-                    "image": "m0ppers/kamelladjutant-frontend",
+                    "image": "m0ppers/kamelladjutant-frontend:0.3",
                     "port_mappings": [
                         {
                             "container_port": 80
                         }
                     ],
+                    "env": {
+                        "BACKEND_URI": "https://coordinator-$domain"
+                    },
                     "instances": 1,
                     "dependencies": [
-                        "../../signaling/signaling-server"
+                        "../../signaling/server",
+                        "../../coordinator/server"
                     ]
                 }
             ]
@@ -28,23 +32,62 @@
             "id": "signaling",
             "apps": [
                 {
-                    "id": "signaling-server",
+                    "id": "server",
                     "mem": 256,
                     "image": "m0ppers/kamelladjutant-signaling-server",
+                    "domain": {
+                        "type": "HTTPS",
+                        "uri": "signaling-$domain"
+                    },
                     "port_mappings": [
                         {
                             "container_port": 9891
                         }
                     ],
                     "env": {
-                        "REDIS_HOST": "redis.signaling.kamelladjutant.andreas2",
+                        "REDIS_HOST": "redis.backend.kamelladjutant.andreas2",
                         "REDIS_PORT": "6379"
                     },
                     "instances": 1,
                     "dependencies": [
-                        "../redis"
+                        "../../backend/redis"
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "id": "coordinator",
+            "apps": [
+                {
+                    "id": "server",
+                    "mem": 256,
+                    "image": "m0ppers/kamelladjutant-coordinator:0.4",
+                    "domain": {
+                        "type": "HTTPS",
+                        "uri": "coordinator-$domain"
+                    },
+                    "port_mappings": [
+                        {
+                            "container_port": 3000
+                        }
+                    ],
+                    "env": {
+                        "COORDINATOR_PORT": "3000",
+                        "SIGNALING_SERVERS": "[\"wss://signaling-$domain\"]",
+                        "ALLOW_ORIGIN": "[\"https://$domain\"]",
+                        "REDIS_HOST": "redis.backend.kamelladjutant.andreas2",
+                        "REDIS_PORT": "6379"
+                    },
+                    "instances": 1,
+                    "dependencies": [
+                        "../../backend/redis"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "backend",
+            "apps": [
                 {
                     "id": "redis",
                     "mem": 256,
